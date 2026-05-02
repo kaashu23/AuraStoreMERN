@@ -154,9 +154,14 @@ const Navbar = () => {
                     <UserButton afterSignOutUrl="/" />
                   </SignedIn>
                   <SignedOut>
-                    <Link to="/sign-in" className="hidden sm:block text-[10px] font-black uppercase tracking-widest text-dark-1 hover:text-primary transition-all">
-                      Login
-                    </Link>
+                    <div className="flex items-center space-x-2 sm:space-x-4">
+                      <Link to="/sign-in" className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-dark-1 hover:text-primary transition-all">
+                        Login
+                      </Link>
+                      <Link to="/sign-up" className="hidden sm:block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white bg-dark-1 px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-primary transition-all">
+                        Join
+                      </Link>
+                    </div>
                   </SignedOut>
                 </div>
               </div>
@@ -256,11 +261,17 @@ const Navbar = () => {
                 </Link>
               )}
             </nav>
-            <div className="mt-16 space-y-8">
-              <SignedOut><Link to="/sign-in" className="btn-premium w-full text-center block py-5 shadow-2xl shadow-primary/10" onClick={() => setIsOpen(false)}>Register Selection</Link></SignedOut>
+            <div className="mt-16 space-y-6">
+              <SignedOut>
+                <div className="flex flex-col space-y-3">
+                  <Link to="/sign-in" className="btn-premium w-full text-center block py-4 shadow-xl shadow-primary/10" onClick={() => setIsOpen(false)}>
+                    Login to Account
+                  </Link>
+                </div>
+              </SignedOut>
               <Link to="/wishlist" className="flex justify-center items-center space-x-6 text-gray-400 group active:text-red-500 transition-all" onClick={() => setIsOpen(false)}>
-                <FaRegHeart size={24} className="group-active:scale-125 transition-transform" />
-                <span className="text-[11px] font-black uppercase tracking-[0.3em]">Wishlist Collection ({wishlistCount})</span>
+                <FaRegHeart size={20} className="group-active:scale-125 transition-transform" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Wishlist Collection ({wishlistCount})</span>
               </Link>
             </div>
           </div>
