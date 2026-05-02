@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../redux/cartSlice';
 import api from '../utils/axios';
 import { FaStar, FaShoppingCart, FaTruck, FaUndo, FaShieldAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { useUser, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { useUser, useAuth, SignedIn, SignedOut } from '@clerk/clerk-react';
 import ReviewForm from '../components/ReviewForm';
 import StarRating from '../components/StarRating';
+import { addToCart, syncCartItem } from '../redux/cartSlice';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { user } = useUser();
+  const { getToken, isSignedIn } = useAuth();
   const cartItems = useSelector((state) => state.cart.items);
   
   const [product, setProduct] = useState(null);
@@ -56,7 +57,7 @@ const ProductDetail = () => {
     window.scrollTo(0, 0);
   }, [id, user]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const existItem = cartItems.find((x) => x._id === product._id);
     const currentQty = existItem ? existItem.qty : 0;
 
@@ -68,6 +69,15 @@ const ProductDetail = () => {
     }
 
     dispatch(addToCart({ product, qty }));
+    
+    // Sync with backend if signed in
+    if (isSignedIn) {
+      const token = await getToken();
+      if (token) {
+        dispatch(syncCartItem({ product, qty, token }));
+      }
+    }
+
     toast.success(`${product.name} added to cart!`, {
         position: 'bottom-right'
     });

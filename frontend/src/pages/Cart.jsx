@@ -1,20 +1,21 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { removeFromCart, updateCartQty } from '../redux/cartSlice';
 import { FaTrash, FaArrowLeft, FaShoppingCart, FaChevronRight } from 'react-icons/fa';
-import { toast } from 'react-hot-toast';
+import { useAuth } from '@clerk/clerk-react';
+import { fetchCart, removeFromCart, updateCartQty, syncCartItem } from '../redux/cartSlice';
 
 const Cart = () => {
   const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { getToken, isSignedIn } = useAuth();
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
   const shipping = subtotal > 150 ? 0 : 25; // Elite shipping threshold
   const total = subtotal + shipping;
 
-  const handleQtyChange = (id, qty, stock) => {
+  const handleQtyChange = async (id, qty, stock) => {
     if (qty < 1) return;
     if (qty > stock) {
         return toast.error(`Only ${stock} units available in the vault.`, {
@@ -23,10 +24,42 @@ const Cart = () => {
         });
     }
     dispatch(updateCartQty({ id, qty }));
+
+    if (isSignedIn) {
+      const token = await getToken();
+      if (token) {
+        // Find product to sync
+        const item = cartItems.find(x => x._id === id);
+        if (item) {
+          // Calculate the difference for syncCartItem
+          const diff = qty - item.qty;
+          dispatch(syncCartItem({ product: item, qty: diff, token }));
+        }
+      }
+    }
   };
 
-  const handleRemove = (id, name) => {
+  const handleRemove = async (id, name) => {
     dispatch(removeFromCart(id));
+
+    if (isSignedIn) {
+      const token = await getToken();
+      if (token) {
+        // The backend removeFromCart uses the itemId from the items array in the Cart model.
+        // We stored it as backendId in cartSlice.
+        const item = cartItems.find(x => x._id === id);
+        if (item && item.backendId) {
+          try {
+            await api.delete(`/cart/${item.backendId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          } catch (error) {
+            console.error('Failed to remove from backend cart:', error);
+          }
+        }
+      }
+    }
+
     toast.success(`${name} removed from your selection`, {
         position: 'bottom-right',
         icon: '🗑️'

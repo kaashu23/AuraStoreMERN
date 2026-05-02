@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { UserButton, SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
+import { UserButton, SignedIn, SignedOut, useUser, useAuth } from '@clerk/clerk-react';
 import { FaShoppingCart, FaSearch, FaRegHeart, FaHeart, FaBars, FaTimes, FaChevronRight, FaUserShield, FaSpinner, FaArrowRight } from 'react-icons/fa';
 import api from '../utils/axios';
 import useDebounce from '../hooks/useDebounce';
+import { fetchCart, addToCart } from '../redux/cartSlice';
+import { useDispatch } from 'react-redux';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +16,7 @@ const Navbar = () => {
   const [showVault, setShowVault] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   
   const debouncedSearch = useDebounce(searchQuery, 300);
 
@@ -24,7 +27,21 @@ const Navbar = () => {
   const wishlistCount = wishlistItems.length;
   
   const { user } = useUser();
+  const { getToken, isSignedIn } = useAuth();
   const isAdmin = user?.publicMetadata?.role === 'admin';
+
+  // Fetch cart from backend on login
+  useEffect(() => {
+    const syncUserCart = async () => {
+      if (isSignedIn) {
+        const token = await getToken();
+        if (token) {
+          dispatch(fetchCart(token));
+        }
+      }
+    };
+    syncUserCart();
+  }, [isSignedIn, dispatch, getToken]);
 
   // Fetch live search results
   useEffect(() => {

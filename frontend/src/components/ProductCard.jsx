@@ -1,20 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../redux/cartSlice';
 import { toggleWishlist } from '../redux/wishlistSlice';
 import { FaShoppingCart, FaRegHeart, FaHeart, FaExpandAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import StarRating from './StarRating';
 
+import { useAuth } from '@clerk/clerk-react';
+import { addToCart, syncCartItem } from '../redux/cartSlice';
+
 const ProductCard = ({ product, layout = 'grid' }) => {
   const dispatch = useDispatch();
+  const { getToken, isSignedIn } = useAuth();
   const cartItems = useSelector((state) => state.cart.items);
   const wishlistItems = useSelector((state) => state.wishlist.items);
   
   const isWishlisted = wishlistItems.some((item) => item._id === product._id);
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault();
     const existItem = cartItems.find((x) => x._id === product._id);
     const currentQty = existItem ? existItem.qty : 0;
@@ -27,6 +30,15 @@ const ProductCard = ({ product, layout = 'grid' }) => {
     }
 
     dispatch(addToCart({ product, qty: 1 }));
+    
+    // Sync with backend if signed in
+    if (isSignedIn) {
+      const token = await getToken();
+      if (token) {
+        dispatch(syncCartItem({ product, qty: 1, token }));
+      }
+    }
+
     toast.success(`${product.name} added to cart!`, {
         position: 'bottom-right'
     });
