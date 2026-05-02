@@ -12,6 +12,14 @@ const initLogisticsAutomation = require('./utils/logisticsAutomation');
 // Load env vars
 dotenv.config();
 
+// Verify critical env vars
+const requiredEnv = ['CLERK_PUBLISHABLE_KEY', 'CLERK_SECRET_KEY', 'MONGO_URI'];
+requiredEnv.forEach(key => {
+  if (!process.env[key]) {
+    console.error(`CRITICAL ERROR: Missing environment variable ${key}`);
+  }
+});
+
 // Initialize Sentry
 initSentry();
 

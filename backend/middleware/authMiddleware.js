@@ -5,8 +5,9 @@ const User = require('../models/User');
 exports.protect = async (req, res, next) => {
   try {
     const { userId } = getAuth(req);
-
+    
     if (!userId) {
+      console.log('Auth failed: No userId found in request headers/cookies');
       return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
     }
 
@@ -15,30 +16,45 @@ exports.protect = async (req, res, next) => {
 
     // 2. Fallback: If user not in DB (webhooks missing), auto-sync from Clerk on the fly
     if (!user) {
+      console.log(`[AUTH] User ${userId} not found in MongoDB. Triggering auto-sync...`);
       try {
         const clerkUser = await clerkClient.users.getUser(userId);
         const email = clerkUser.emailAddresses[0]?.emailAddress;
         const name = `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'Aura Member';
+        const image = clerkUser.imageUrl;
         const role = clerkUser.publicMetadata?.role || 'user';
 
-        user = await User.create({
-          clerkId: userId,
-          name,
-          email,
-          role,
-        });
+        if (!email) {
+          throw new Error('No email address found in Clerk profile');
+        }
+
+        // Use findOneAndUpdate with upsert for atomicity
+        user = await User.findOneAndUpdate(
+          { clerkId: userId },
+          {
+            clerkId: userId,
+            name,
+            email,
+            role,
+          },
+          { upsert: true, new: true, runValidators: true }
+        );
         
-        console.log(`Auto-synced user ${email} to MongoDB`);
+        console.log(`[AUTH] Successfully synced user: ${email} (${user.role})`);
       } catch (clerkError) {
-        console.error('Clerk Fetch Error:', clerkError.message);
-        return res.status(401).json({ success: false, message: 'Authentication failed' });
+        console.error(`[AUTH] Clerk Sync Failed for ${userId}:`, clerkError.message);
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Your account is being synced. Please refresh in a moment.',
+          error: clerkError.message 
+        });
       }
     }
 
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth Error:', error.message);
+    console.error('General Auth Middleware Error:', error.message);
     return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
   }
 };
