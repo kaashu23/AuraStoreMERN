@@ -91,8 +91,10 @@ const Navbar = () => {
               >
                 <FaBars size={20} />
               </button>
-              <Link to="/" className="flex-shrink-0">
-                <span className="text-xl md:text-2xl font-black tracking-tighter text-dark-1 uppercase">AURA STORE</span>
+              <Link to="/" className="flex-shrink-0 group">
+                <span className="text-2xl md:text-3xl font-serif font-light italic tracking-tight text-dark-1 group-hover:text-primary transition-colors duration-500">
+                  Aura Store
+                </span>
               </Link>
             </div>
 
@@ -155,7 +157,7 @@ const Navbar = () => {
                   </SignedIn>
                   <SignedOut>
                     <div className="flex items-center space-x-2 sm:space-x-4">
-                      <Link to="/sign-in" className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-dark-1 hover:text-primary transition-all">
+                      <Link to="/sign-in" className="text-[11px] sm:text-[10px] font-black uppercase tracking-widest text-dark-1 hover:text-primary transition-all">
                         Login
                       </Link>
                       <Link to="/sign-up" className="hidden sm:block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white bg-dark-1 px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-primary transition-all">

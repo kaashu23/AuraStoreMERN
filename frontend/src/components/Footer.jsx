@@ -10,8 +10,10 @@ const Footer = () => {
           
           {/* Logo & Description */}
           <div className="space-y-8 col-span-1 sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="inline-block">
-              <span className="text-3xl font-black tracking-tighter">AURA STORE</span>
+            <Link to="/" className="inline-block group">
+              <span className="text-3xl font-serif font-light italic tracking-tight group-hover:text-primary transition-colors duration-500">
+                Aura Store
+              </span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed font-light max-w-sm">
               Redefining modern elegance through sustainable practices and high-end design. Join us in our journey to create a more beautiful world.
