@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  /* Aura Store Premium Design System */
+  --primary: #0D5F20;
+  --dark-1: #0B2B26;
+  --dark-2: #163832;
+  --dark-3: #235347;
+  --accent: #8EB696;
+  --light-bg: #DAF1DE;
+  --white: #FFFFFF;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-dark-1: var(--dark-1);
+  --color-dark-2: var(--dark-2);
+  --color-dark-3: var(--dark-3);
+  --color-accent: var(--accent);
+  --color-light-bg: var(--light-bg);
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-dark-1 transition-colors duration-300 font-sans antialiased selection:bg-primary selection:text-white overflow-x-hidden w-full;
+  }
+  
+  #root {
+    @apply overflow-x-hidden w-full;
+  }
+
+  /* Elite Dark Mode Integration */
+  body.dark {
+    @apply bg-dark-1 text-gray-100;
+  }
+}
+
+/* Glassmorphism Evolution */
+.glass-header {
+  @apply bg-white/80 backdrop-blur-xl border-b border-gray-50 sticky top-0 z-[200];
+}
+
+body.dark .glass-header {
+  @apply bg-dark-1/90 border-dark-2;
+}
+
+/* Premium Component Utilities */
+.btn-premium {
+  @apply px-10 py-4 bg-dark-1 text-white text-[10px] font-black uppercase tracking-[0.4em] transition-all hover:bg-primary hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+body.dark .btn-premium {
+  @apply bg-primary hover:bg-accent hover:text-dark-1;
+}
+
+.text-thin {
+  @apply font-light tracking-[0.1em];
+}
+
+/* Typography Masterclass */
+h1, h2, h3 {
+  @apply tracking-tight;
+}
+
+.italic-light {
+  @apply font-light italic tracking-tight;
+}
+
+/* Custom Scrollbar - Elite Minimalism */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-50;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-3 rounded-full hover:bg-primary transition-colors;
+}
+
+/* Global Transitions */
+.animate-fade-in {
+  @apply transition-all duration-700;
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Layout Utilities */
+.section-container {
+  @apply max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-20 overflow-hidden;
+}
+
+/* Mobile Fixes */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
