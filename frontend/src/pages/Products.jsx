@@ -246,11 +246,26 @@ const Products = () => {
                 )}
               </>
             ) : (
-              <div className="text-center py-48 bg-gray-50/50 dark:bg-dark-2/20 border border-dashed border-gray-100 dark:border-dark-3 animate-fade-in">
-                <div className="text-3xl mb-8 opacity-20 italic font-light uppercase tracking-[0.3em] dark:text-white">No matches found</div>
+              <div className="flex flex-col items-center justify-center py-32 px-6 text-center space-y-10 animate-fade-in">
+                <div className="relative">
+                   <div className="w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-inner">
+                      <FaSearch size={32} className="text-gray-200" />
+                   </div>
+                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary/10 rounded-full animate-ping" />
+                </div>
+                
+                <div className="space-y-4 max-w-sm">
+                  <h3 className="text-2xl font-light tracking-tight text-dark-1 uppercase italic leading-none">
+                    No matches found in <span className="font-black not-italic">The Vault</span>
+                  </h3>
+                  <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.4em] leading-relaxed">
+                    Our curation protocols returned zero coordinates. Adjust your filters or reset to browse the full collection.
+                  </p>
+                </div>
+
                 <button 
-                  onClick={() => { setSearchInput(''); setSearchParams({}); }} 
-                  className="px-12 py-5 border border-dark-1 dark:border-primary text-dark-1 dark:text-white text-[10px] font-black uppercase tracking-[0.4em] hover:bg-dark-1 hover:text-white dark:hover:bg-primary transition-all duration-500"
+                  onClick={() => { setSearchInput(''); setSearchParams({}); setPriceRange([0, 100000]); }} 
+                  className="px-12 py-5 border border-primary text-primary text-[10px] font-black uppercase tracking-[0.4em] hover:bg-primary hover:text-white transition-all duration-500 shadow-xl shadow-primary/5 active:scale-95"
                 >
                    Reset All Protocols
                 </button>

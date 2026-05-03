@@ -1,18 +1,30 @@
 import React, { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { clearCart } from '../redux/cartSlice';
+import { clearCart, clearCartBackend } from '../redux/cartSlice';
 import { FaCheck, FaArrowRight, FaArchive, FaShieldAlt } from 'react-icons/fa';
+import { useAuth } from '@clerk/clerk-react';
 
 const CheckoutSuccess = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
   const dispatch = useDispatch();
+  const { getToken, isSignedIn } = useAuth();
 
   useEffect(() => {
-    dispatch(clearCart());
+    const finalizeAcquisition = async () => {
+      dispatch(clearCart());
+      if (isSignedIn) {
+        const token = await getToken();
+        if (token) {
+          dispatch(clearCartBackend(token));
+        }
+      }
+    };
+    
+    finalizeAcquisition();
     window.scrollTo(0, 0);
-  }, [dispatch]);
+  }, [dispatch, isSignedIn, getToken]);
 
   return (
     <div className="bg-white min-h-screen flex items-center justify-center py-20 px-6">

@@ -47,15 +47,29 @@ const Checkout = () => {
       });
       
       if (data.url) {
-        window.location.href = data.url;
+        // Use window.location.replace to prevent back-button loops on mobile
+        window.location.replace(data.url);
+      } else {
+        throw new Error('No payment URL received');
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error(error.response?.data?.message || 'Transaction failed');
-    } finally {
+      toast.error(error.response?.data?.message || error.message || 'Transaction failed');
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center space-y-8 bg-white">
+        <div className="w-20 h-20 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-light tracking-tight text-dark-1 uppercase italic">Initializing Secure Vault</h2>
+          <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.4em]">Redirecting to payment gateway...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white min-h-screen">

@@ -111,3 +111,23 @@ exports.removeFromCart = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+// @desc    Clear user cart
+// @route   DELETE /api/cart
+// @access  Private
+exports.clearCart = async (req, res) => {
+  try {
+    let cart = await Cart.findOne({ user: req.user.id });
+
+    if (cart) {
+      cart.items = [];
+      cart.updatedAt = Date.now();
+      await cart.save();
+    }
+
+    res.status(200).json({ success: true, data: cart });
+  } catch (error) {
+    Sentry.captureException(error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

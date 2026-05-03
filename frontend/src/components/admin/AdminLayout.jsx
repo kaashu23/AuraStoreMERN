@@ -13,10 +13,10 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-80px)]">
-      {/* Sidebar - Premium Aura Dark Theme */}
-      <aside className="w-full md:w-72 bg-dark-1 border-r border-dark-2 transition-all duration-300">
-        <div className="p-8">
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Sidebar - Premium Aura Dark Theme - Fixed without extra scroller */}
+      <aside className="w-full md:w-72 bg-dark-1 border-r border-dark-2 transition-all duration-300 md:sticky md:top-0 md:h-screen overflow-hidden">
+        <div className="p-8 h-full flex flex-col">
           <Link to="/" className="flex items-center space-x-3 text-gray-400 hover:text-white transition-all mb-12 group">
             <FaArrowLeft size={10} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em]">Return to Store</span>

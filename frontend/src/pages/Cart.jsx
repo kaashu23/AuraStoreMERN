@@ -8,29 +8,54 @@ import { toast } from 'react-hot-toast';
 import { useAuth } from '@clerk/clerk-react';
 
 const Cart = () => {
-  const cartItems = useSelector((state) => state.cart.items);
+  const cartItems = useSelector((state) => state.cart?.items || []);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { getToken, isSignedIn } = useAuth();
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const shipping = subtotal > 5000 ? 0 : 500; // Updated for INR
+  const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
+  const shipping = subtotal > 5000 ? 0 : 500; 
   const total = subtotal + shipping;
 
   const handleQtyChange = async (id, qty, stock) => {
-    if (qty < 1) return;
-    if (qty > stock) {
+    const newQty = Number(qty);
+    if (newQty < 1) return;
+    if (newQty > stock) {
         return toast.error(`Only ${stock} units available in the vault.`, {
             position: 'bottom-right',
             style: { background: '#0B2B26', color: '#fff', fontSize: '10px', fontWeight: '900' }
         });
     }
-    dispatch(updateCartQty({ id, qty }));
-    // Backend sync would happen here if needed, but assuming cartSlice handles it or via useEffect
+    dispatch(updateCartQty({ id, qty: newQty }));
+    
+    // Optional: Sync with backend if needed immediately
+    if (isSignedIn) {
+       try {
+         const token = await getToken();
+         await api.post('/cart', { productId: id, qty: newQty }, {
+           headers: { Authorization: `Bearer ${token}` }
+         });
+       } catch (err) {
+         console.error('Cart sync failed:', err);
+       }
+    }
   };
 
   const handleRemove = async (id, name) => {
     dispatch(removeFromCart(id));
+    
+    if (isSignedIn) {
+      try {
+        const token = await getToken();
+        // Note: Backend might need the cart item ID or product ID. 
+        // Assuming your backend handles product ID for removal if cart item ID isn't available.
+        // If it needs the internal MongoDB _id of the cart item, we'd need to store that.
+        // For now, removing locally is the priority for UI loading.
+      } catch (err) {
+        console.error('Cart removal sync failed:', err);
+      }
+    }
+
     toast.success(`${name} removed from your selection`, {
         position: 'bottom-right',
         icon: '🗑️'
@@ -87,7 +112,7 @@ const Cart = () => {
                 {/* Product Image */}
                 <div className="w-full sm:w-48 aspect-square bg-gray-50 overflow-hidden relative border border-gray-100">
                   <img 
-                    src={item.images[0]} 
+                    src={item.images?.[0] || item.image} 
                     alt={item.name} 
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000"
                   />
@@ -116,7 +141,7 @@ const Cart = () => {
                     <div className="flex items-center space-x-12">
                        <div className="space-y-1">
                           <p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">Unit Price</p>
-                          <p className="text-sm font-bold text-dark-1">₹{item.price.toLocaleString()}</p>
+                          <p className="text-sm font-bold text-dark-1">₹{(Number(item.price) || 0).toLocaleString()}</p>
                        </div>
                        
                        <div className="space-y-3">
@@ -137,7 +162,7 @@ const Cart = () => {
                     </div>
                     <div className="text-right">
                        <p className="text-[8px] font-black text-gray-300 uppercase tracking-widest mb-1">Sub-Allocation Total</p>
-                       <span className="text-2xl font-black text-dark-1 tracking-tighter italic">₹{(item.price * item.qty).toLocaleString()}</span>
+                       <span className="text-2xl font-black text-dark-1 tracking-tighter italic">₹{((Number(item.price) || 0) * (Number(item.qty) || 0)).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>

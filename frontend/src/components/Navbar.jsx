@@ -5,7 +5,8 @@ import { UserButton, SignedIn, SignedOut, useUser, useAuth } from '@clerk/clerk-
 import { FaShoppingCart, FaSearch, FaRegHeart, FaHeart, FaBars, FaTimes, FaChevronRight, FaUserShield, FaSpinner, FaArrowRight } from 'react-icons/fa';
 import api from '../utils/axios';
 import useDebounce from '../hooks/useDebounce';
-import { fetchCart, addToCart } from '../redux/cartSlice';
+import { fetchCart, addToCart, clearCart } from '../redux/cartSlice';
+import { clearWishlist } from '../redux/wishlistSlice';
 import { useDispatch } from 'react-redux';
 
 const Navbar = () => {
@@ -21,27 +22,31 @@ const Navbar = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   const cartItems = useSelector((state) => state.cart.items);
-  const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
+  const cartCount = cartItems.reduce((acc, item) => acc + (item?.qty || 0), 0);
   
   const wishlistItems = useSelector((state) => state.wishlist.items);
   const wishlistCount = wishlistItems.length;
   
-  const { user } = useUser();
+  const { user, isLoaded: userLoaded } = useUser();
   const { getToken, isSignedIn } = useAuth();
   const isAdmin = user?.publicMetadata?.role === 'admin';
 
-  // Fetch cart from backend on login
+  // Handle Cart sync and cleanup
   useEffect(() => {
-    const syncUserCart = async () => {
-      if (isSignedIn) {
+    if (isSignedIn) {
+      const syncUserCart = async () => {
         const token = await getToken();
         if (token) {
           dispatch(fetchCart(token));
         }
-      }
-    };
-    syncUserCart();
-  }, [isSignedIn, dispatch, getToken]);
+      };
+      syncUserCart();
+    } else if (userLoaded && !isSignedIn) {
+      // User is logged out, clear the left-over cart and wishlist items
+      dispatch(clearCart());
+      dispatch(clearWishlist());
+    }
+  }, [isSignedIn, userLoaded, dispatch, getToken]);
 
   // Fetch live search results
   useEffect(() => {
@@ -191,52 +196,53 @@ const Navbar = () => {
         className={`fixed top-16 md:top-20 lg:top-24 left-0 w-full bg-white shadow-2xl border-t border-gray-50 z-[190] transition-all duration-700 ease-in-out transform ${
           showVault ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
         }`}
-        style={{ minHeight: '400px', maxHeight: '60vh' }}
       >
-        <div className="section-container py-12 flex flex-col h-full overflow-hidden">
-          <div className="flex justify-between items-center mb-10 pb-4 border-b border-gray-50">
-            <div className="space-y-1">
+        <div className="section-container py-8 md:py-12 flex flex-col max-h-[80vh]">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-4 border-b border-gray-50">
+            <div className="space-y-1 min-w-0 max-w-full overflow-hidden">
                <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">Live Discovery</p>
-               <h3 className="text-xl font-light italic tracking-tight text-dark-1">Showing matches for: <span className="font-black">"{searchQuery}"</span></h3>
+               <h3 className="text-lg md:text-xl font-light italic tracking-tight text-dark-1 truncate w-full">
+                 Showing matches for: <span className="font-black">"{searchQuery}"</span>
+               </h3>
             </div>
             <Link 
               to={`/products?search=${searchQuery}`} 
               onClick={() => setShowVault(false)}
-              className="group flex items-center space-x-3 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-primary transition-colors"
+              className="group flex items-center space-x-3 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-primary transition-colors shrink-0 whitespace-nowrap bg-gray-50/50 sm:bg-transparent px-4 py-2 sm:p-0 rounded-lg sm:rounded-none w-full sm:w-auto justify-center sm:justify-start"
             >
               <span>Explore All Results</span>
               <FaArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="flex-1 overflow-x-auto scrollbar-hide pb-8">
-            <div className="flex gap-10 px-2 min-w-full">
+          <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
+            <div className="flex gap-6 sm:gap-10 pb-6">
               {searchResults.map((product) => (
                 <Link
                   key={product._id}
                   to={`/products/${product._id}`}
                   onClick={() => { setSearchQuery(''); setShowVault(false); }}
-                  className="w-40 sm:w-48 group/item flex flex-col space-y-4 animate-fade-in shrink-0"
+                  className="w-36 sm:w-48 group/item flex flex-col space-y-3 animate-fade-in shrink-0"
                 >
                   <div className="aspect-[4/5] w-full bg-gray-50 overflow-hidden border border-gray-100 relative">
                     <img 
-                      src={product.images[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'} 
+                      src={product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'} 
                       alt="" 
                       className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 group-hover/item:scale-110 transition-all duration-1000" 
                     />
                   </div>
-                  <div className="space-y-1">
-                     <p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">{product.category?.name || 'AURA VAULT'}</p>
-                     <h4 className="text-xs font-bold text-dark-1 uppercase truncate tracking-tight">{product.name}</h4>
-                     <p className="text-xs font-black text-primary tracking-tighter">₹{product.price.toFixed(2)}</p>
+                  <div className="space-y-1 overflow-hidden">
+                     <p className="text-[7px] font-black text-gray-300 uppercase tracking-widest truncate">{product.category?.name || 'AURA VAULT'}</p>
+                     <h4 className="text-[10px] sm:text-xs font-bold text-dark-1 uppercase truncate tracking-tight">{product.name}</h4>
+                     <p className="text-[10px] sm:text-xs font-black text-primary tracking-tighter">₹{product.price.toFixed(2)}</p>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="mt-auto pt-8 border-t border-gray-50 text-center">
-             <p className="text-[9px] font-black text-gray-200 uppercase tracking-[0.5em]">Aura Store Premium Search Terminal</p>
+          <div className="mt-4 pt-4 border-t border-gray-50 text-center">
+             <p className="text-[8px] font-black text-gray-200 uppercase tracking-[0.5em]">Aura Store Premium Search Terminal</p>
           </div>
         </div>
       </div>

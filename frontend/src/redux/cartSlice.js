@@ -35,8 +35,33 @@ export const syncCartItem = createAsyncThunk(
   }
 );
 
+export const clearCartBackend = createAsyncThunk(
+  'cart/clearBackend',
+  async (token, { rejectWithValue }) => {
+    try {
+      await api.delete('/cart', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return true;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
+
+const getInitialCart = () => {
+  try {
+    const saved = localStorage.getItem('cartItems');
+    if (!saved || saved === 'undefined') return [];
+    return JSON.parse(saved);
+  } catch (error) {
+    console.error('Failed to parse cart items:', error);
+    return [];
+  }
+};
+
 const initialState = {
-  items: JSON.parse(localStorage.getItem('cartItems')) || [],
+  items: getInitialCart(),
   status: 'idle',
   error: null,
 };
