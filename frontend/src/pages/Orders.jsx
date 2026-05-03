@@ -81,7 +81,7 @@ const Orders = () => {
                     </div>
                     <div className="space-y-2 text-right">
                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest leading-none">Valuation</p>
-                       <p className="text-lg font-black text-primary tracking-tighter">${order.totalAmount.toFixed(2)}</p>
+                       <p className="text-lg font-black text-primary tracking-tighter">₹{order.totalAmount.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
@@ -143,7 +143,7 @@ const Orders = () => {
                       </div>
                       <div className="min-w-0 space-y-1">
                         <h4 className="text-[10px] font-black text-dark-1 uppercase truncate tracking-tight">{item.product?.name || 'Archived Item'}</h4>
-                        <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{item.qty} x ${item.price.toFixed(2)}</p>
+                        <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{item.qty} x ₹{item.price.toFixed(2)}</p>
                       </div>
                     </Link>
                   ))}

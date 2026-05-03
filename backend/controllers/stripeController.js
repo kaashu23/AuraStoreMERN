@@ -54,7 +54,7 @@ exports.stripeWebhook = async (req, res) => {
         <p>Hi ${order.user.name},</p>
         <p>Thank you for your order! Your payment was successful.</p>
         <p><strong>Order ID:</strong> ${order._id}</p>
-        <p><strong>Total Amount:</strong> $${order.totalAmount.toFixed(2)}</p>
+        <p><strong>Total Amount:</strong> ₹${order.totalAmount.toFixed(2)}</p>
         <p>We will notify you when your order is shipped.</p>
       `;
 

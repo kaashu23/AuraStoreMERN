@@ -66,7 +66,7 @@ const RecentlyViewed = () => {
                     {product.name}
                    </h3>
                    <div className="flex justify-between items-center pt-1">
-                     <p className="text-primary font-black text-xs tracking-tighter">${product.price.toFixed(2)}</p>
+                     <p className="text-primary font-black text-xs tracking-tighter">₹{product.price.toFixed(2)}</p>
                      <div className="opacity-0 group-hover/card:opacity-100 transition-all translate-x-2 group-hover/card:translate-x-0">
                         <FaChevronRight size={8} className="text-primary" />
                      </div>

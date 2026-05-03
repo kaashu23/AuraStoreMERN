@@ -67,20 +67,20 @@ const Footer = () => {
 
           {/* Newsletter / Search */}
           <div className="space-y-8">
-            <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-accent">Join the Elite</h4>
+            <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-accent">Elite Updates</h4>
             <p className="text-gray-400 text-xs font-light leading-relaxed">
               Subscribe to receive updates, access to exclusive deals, and more.
             </p>
-            <div className="relative group">
+            <form className="relative group">
               <input
                 type="email"
                 placeholder="EMAIL ADDRESS"
                 className="w-full bg-transparent border-b border-gray-800 py-3 text-[10px] font-black uppercase tracking-widest focus:border-accent transition-colors outline-none placeholder:text-gray-700"
               />
-              <button className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
-                <FaChevronRight size={14} />
+              <button className="absolute right-0 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
+                Subscribe
               </button>
-            </div>
+            </form>
           </div>
         </div>
 

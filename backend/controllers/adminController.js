@@ -17,6 +17,30 @@ exports.getStats = async (req, res) => {
     const usersCount = await User.countDocuments();
     const productsCount = await Product.countDocuments();
 
+    // Top selling products
+    const topProducts = await Order.aggregate([
+      { $match: { paymentStatus: 'Paid' } },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.product',
+          totalSold: { $sum: '$items.qty' },
+          totalRevenue: { $sum: { $multiply: ['$items.qty', '$items.price'] } },
+        },
+      },
+      { $sort: { totalSold: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'product',
+        },
+      },
+      { $unwind: '$product' },
+    ]);
+
     res.status(200).json({
       success: true,
       data: {
@@ -24,6 +48,7 @@ exports.getStats = async (req, res) => {
         ordersCount,
         usersCount,
         productsCount,
+        topProducts,
       },
     });
   } catch (error) {
@@ -37,11 +62,20 @@ exports.getStats = async (req, res) => {
 // @access  Admin
 exports.getSalesData = async (req, res) => {
   try {
+    const { group = 'day' } = req.query;
+    let format = '%Y-%m-%d';
+
+    if (group === 'week') {
+      format = '%Y-W%V';
+    } else if (group === 'month') {
+      format = '%Y-%m';
+    }
+
     const sales = await Order.aggregate([
       { $match: { paymentStatus: 'Paid' } },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          _id: { $dateToString: { format, date: '$createdAt' } },
           revenue: { $sum: '$totalAmount' },
           orders: { $sum: 1 },
         },

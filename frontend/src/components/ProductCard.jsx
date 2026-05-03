@@ -74,7 +74,7 @@ const ProductCard = ({ product, layout = 'grid' }) => {
              <p className="text-gray-400 font-light text-xs line-clamp-2 max-w-xl leading-relaxed">{product.description}</p>
           </div>
           <div className="flex items-center space-x-6 pt-1">
-            <span className="text-xl font-black text-dark-1">${product.price.toFixed(2)}</span>
+            <span className="text-xl font-black text-dark-1">₹{product.price.toFixed(2)}</span>
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleAddToCart}
@@ -158,7 +158,7 @@ const ProductCard = ({ product, layout = 'grid' }) => {
         <div className="flex flex-col items-center gap-0.5">
            <StarRating rating={product.averageRating} size={6} />
            <p className="text-[11px] font-black text-dark-1 tracking-wider">
-            ${product.price.toFixed(2)}
+            ₹{product.price.toFixed(2)}
           </p>
         </div>
         

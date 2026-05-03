@@ -18,7 +18,7 @@ const Checkout = () => {
   });
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const shipping = subtotal > 150 ? 0 : 25;
+  const shipping = subtotal > 5000 ? 0 : 500;
   const total = subtotal + shipping;
 
   const handleChange = (e) => {
@@ -156,7 +156,7 @@ const Checkout = () => {
                     ) : (
                       <>
                         <FaLock size={14} />
-                        <span>Authorize Payment of ${total.toFixed(2)}</span>
+                        <span>Authorize Payment of ₹{total.toFixed(2)}</span>
                       </>
                     )}
                   </button>
@@ -183,7 +183,7 @@ const Checkout = () => {
                            <span className="text-[10px] font-black text-primary">{item.qty}x</span>
                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-tight truncate w-32">{item.name}</span>
                         </div>
-                        <span className="text-xs font-black text-white">${(item.price * item.qty).toFixed(2)}</span>
+                        <span className="text-xs font-black text-white">₹{(item.price * item.qty).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -191,15 +191,15 @@ const Checkout = () => {
                   <div className="pt-8 border-t border-white/5 space-y-4">
                     <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-500">
                       <span>Subtotal</span>
-                      <span className="text-white">${subtotal.toFixed(2)}</span>
+                      <span className="text-white">₹{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-500">
                       <span>Handling</span>
-                      <span className="text-white">${shipping.toFixed(2)}</span>
+                      <span className="text-white">₹{shipping.toFixed(2)}</span>
                     </div>
                     <div className="pt-6 border-t border-white/5 flex justify-between items-end">
                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Total</span>
-                       <span className="text-2xl font-black text-white tracking-tighter">${total.toFixed(2)}</span>
+                       <span className="text-2xl font-black text-white tracking-tighter">₹{total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

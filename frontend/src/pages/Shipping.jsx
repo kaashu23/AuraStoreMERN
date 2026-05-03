@@ -30,7 +30,7 @@ const Shipping = () => {
                   <h2 className="text-xl font-black uppercase tracking-widest italic text-dark-1">Global Coverage</h2>
                </div>
                <p className="text-gray-500 font-light leading-relaxed text-sm">
-                 We provide complimentary white-glove shipping to over 120 countries for all selections exceeding $150 valuation.
+                 We provide complimentary white-glove shipping to over 120 countries for all selections exceeding ₹5000 valuation.
                </p>
             </div>
           </div>

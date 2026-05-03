@@ -167,7 +167,7 @@ const AdminOrders = () => {
                           )}
                        </div>
                     </td>
-                    <td className="p-5 text-center font-black text-primary tracking-wider text-sm">${order.totalAmount.toFixed(2)}</td>
+                    <td className="p-5 text-center font-black text-primary tracking-wider text-sm">₹{order.totalAmount.toFixed(2)}</td>
                     <td className="p-5 text-right">
                       <div className="flex justify-end space-x-3">
                         {order.status === 'Pending' && (

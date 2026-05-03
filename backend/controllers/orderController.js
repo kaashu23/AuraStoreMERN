@@ -82,7 +82,7 @@ exports.createOrder = async (req, res, next) => {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     const line_items = items.map((item) => ({
       price_data: {
-        currency: process.env.STRIPE_CURRENCY || 'usd',
+        currency: process.env.STRIPE_CURRENCY || 'inr',
         product_data: { name: item.name },
         unit_amount: Math.round(item.price * 100),
       },

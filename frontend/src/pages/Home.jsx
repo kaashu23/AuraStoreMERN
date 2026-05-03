@@ -76,7 +76,7 @@ const Home = () => {
         <div className="section-container">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-6 lg:gap-20 text-center">
             {[
-              { icon: <FaTruck />, title: 'Global Dispatch', desc: 'Complimentary shipping on orders over $150' },
+              { icon: <FaTruck />, title: 'Global Dispatch', desc: 'Complimentary shipping on orders over ₹5000' },
               { icon: <FaShieldAlt />, title: 'Vault Security', desc: 'End-to-end encryption for your peace of mind' },
               { icon: <FaUndo />, title: 'Elite Exchange', desc: 'Hassle-free 30-day digital return protocol' },
             ].map((item, i) => (

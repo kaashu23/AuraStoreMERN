@@ -177,9 +177,6 @@ const Navbar = () => {
                       <Link to="/sign-in" className="text-[11px] sm:text-[10px] font-black uppercase tracking-widest text-dark-1 hover:text-primary transition-all">
                         Login
                       </Link>
-                      <Link to="/sign-up" className="hidden sm:block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white bg-dark-1 px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-primary transition-all">
-                        Join
-                      </Link>
                     </div>
                   </SignedOut>
                 </div>
@@ -231,7 +228,7 @@ const Navbar = () => {
                   <div className="space-y-1">
                      <p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">{product.category?.name || 'AURA VAULT'}</p>
                      <h4 className="text-xs font-bold text-dark-1 uppercase truncate tracking-tight">{product.name}</h4>
-                     <p className="text-xs font-black text-primary tracking-tighter">${product.price.toFixed(2)}</p>
+                     <p className="text-xs font-black text-primary tracking-tighter">₹{product.price.toFixed(2)}</p>
                   </div>
                 </Link>
               ))}

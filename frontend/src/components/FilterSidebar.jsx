@@ -1,94 +1,110 @@
 import React from 'react';
-import { FaChevronDown } from 'react-icons/fa';
+import { FaChevronDown, FaUndoAlt } from 'react-icons/fa';
 
 const FilterSidebar = ({ categories, selectedCategory, onCategoryChange, priceRange, onPriceChange, sort, onSortChange }) => {
   return (
-    <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 space-y-10 h-fit sticky top-24 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500">
-      {/* Categories */}
-      <div>
-        <h3 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-6">Collections</h3>
-        <div className="space-y-3">
+    <div className="space-y-12 py-4">
+      {/* Collections Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-dark-1 dark:text-gray-400">Collections</h3>
+          <span className="w-8 h-[1px] bg-gray-100 dark:bg-dark-3"></span>
+        </div>
+        <div className="flex flex-col space-y-2">
           <button
             onClick={() => onCategoryChange('')}
-            className={`w-full text-left px-4 py-3 rounded-2xl font-bold transition-all text-sm ${
+            className={`group flex items-center justify-between px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 rounded-xl ${
               selectedCategory === ''
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                ? 'bg-primary/5 text-primary border border-primary/20'
+                : 'text-gray-400 hover:text-primary hover:bg-gray-50'
             }`}
           >
-            All Products
+            <span>All Products</span>
+            {selectedCategory === '' && <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>}
           </button>
           {categories.map((cat) => (
             <button
               key={cat._id}
               onClick={() => onCategoryChange(cat._id)}
-              className={`w-full text-left px-4 py-3 rounded-2xl font-bold transition-all text-sm ${
+              className={`group flex items-center justify-between px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 rounded-xl ${
                 selectedCategory === cat._id
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                  : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600'
+                  ? 'bg-primary/5 text-primary border border-primary/20'
+                  : 'text-gray-400 hover:text-primary hover:bg-gray-50'
               }`}
             >
-              {cat.name}
+              <span>{cat.name}</span>
+              {selectedCategory === cat._id && <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Price Range */}
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Budget</h3>
-          <span className="text-sm font-black text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-lg">
-            ${priceRange[1]}
-          </span>
+      {/* Budget Section */}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-dark-1 dark:text-gray-400">Budget</h3>
+          <span className="w-8 h-[1px] bg-gray-100 dark:bg-dark-3"></span>
         </div>
-        <div className="px-2">
-          <input
-            type="range"
-            min="0"
-            max="5000"
-            step="50"
-            value={priceRange[1]}
-            onChange={(e) => onPriceChange([0, parseInt(e.target.value)])}
-            className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-          />
-        </div>
-        <div className="flex justify-between mt-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-          <span>Min: $0</span>
-          <span>Max: $5k</span>
-        </div>
-      </div>
-
-      {/* Sort By */}
-      <div>
-        <h3 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-6">Sort By</h3>
-        <div className="relative group">
-          <select
-            value={sort}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="w-full bg-gray-50 dark:bg-gray-800/50 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-gray-800 transition-all rounded-2xl py-3 px-4 text-sm font-bold text-gray-700 dark:text-gray-300 appearance-none cursor-pointer"
-          >
-            <option value="-createdAt">Newest First</option>
-            <option value="price">Price: Low to High</option>
-            <option value="-price">Price: High to Low</option>
-            <option value="-averageRating">Best Rating</option>
-          </select>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-            <FaChevronDown size={12} />
+        <div className="space-y-6 px-2">
+          <div className="flex justify-between items-baseline">
+            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Cap</p>
+            <p className="text-xl font-black text-primary tracking-tighter italic">
+              ₹{priceRange[1].toLocaleString()}
+            </p>
+          </div>
+          <div className="relative h-6 flex items-center">
+            <input
+              type="range"
+              min="0"
+              max="100000"
+              step="500"
+              value={priceRange[1]}
+              onChange={(e) => onPriceChange([0, parseInt(e.target.value)])}
+              className="w-full h-[2px] bg-gray-100 dark:bg-dark-3 appearance-none cursor-pointer accent-primary hover:accent-dark-1 transition-all"
+            />
+          </div>
+          <div className="flex justify-between text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">
+            <span>Entry ₹0</span>
+            <span>Peak ₹100k</span>
           </div>
         </div>
       </div>
 
-      <button
-        onClick={() => {
-          onCategoryChange('');
-          onPriceChange([0, 5000]);
-          onSortChange('-createdAt');
-        }}
-        className="w-full text-xs font-black uppercase tracking-widest text-gray-400 hover:text-red-500 transition-colors pt-4 border-t border-gray-100 dark:border-gray-800"
-      >
-        Reset Filters
-      </button>
+      {/* Sort Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-dark-1 dark:text-gray-400">Priority</h3>
+          <span className="w-8 h-[1px] bg-gray-100 dark:bg-dark-3"></span>
+        </div>
+        <div className="relative group">
+          <select
+            value={sort}
+            onChange={(e) => onSortChange(e.target.value)}
+            className="w-full bg-gray-50 dark:bg-dark-2 border border-transparent hover:border-gray-100 dark:hover:border-dark-3 py-4 px-6 text-[10px] font-black uppercase tracking-widest text-dark-1 dark:text-gray-200 appearance-none cursor-pointer outline-none transition-all focus:ring-1 focus:ring-primary/20"
+          >
+            <option value="-createdAt">Newest Dispatch</option>
+            <option value="price">Price: Ascending</option>
+            <option value="-price">Price: Descending</option>
+            <option value="-averageRating">Elite Rating</option>
+          </select>
+          <FaChevronDown size={10} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 group-hover:text-primary transition-colors pointer-events-none" />
+        </div>
+      </div>
+
+      {/* Reset Action */}
+      <div className="pt-10">
+        <button
+          onClick={() => {
+            onCategoryChange('');
+            onPriceChange([0, 100000]);
+            onSortChange('-createdAt');
+          }}
+          className="w-full flex items-center justify-center space-x-3 py-4 border border-dashed border-gray-200 dark:border-dark-3 text-[9px] font-black uppercase tracking-[0.3em] text-gray-300 hover:text-red-500 hover:border-red-100 dark:hover:border-red-900/30 transition-all duration-500"
+        >
+          <FaUndoAlt size={10} />
+          <span>Clear Protocols</span>
+        </button>
+      </div>
     </div>
   );
 };

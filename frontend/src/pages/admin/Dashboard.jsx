@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/axios';
-import { FaDollarSign, FaBox, FaUsers, FaShoppingCart, FaDownload, FaArrowUp, FaChartLine, FaEye, FaTrophy } from 'react-icons/fa';
+import { FaDollarSign, FaBox, FaUsers, FaShoppingCart, FaDownload, FaArrowUp, FaChartLine, FaEye, FaTrophy, FaFire } from 'react-icons/fa';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useAuth } from '@clerk/clerk-react';
 import LowStockTable from '../../components/admin/LowStockTable';
@@ -11,29 +11,31 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [salesData, setSalesData] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
+  const [salesGroup, setSalesGroup] = useState('day');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await getToken();
-        const headers = { Authorization: `Bearer ${token}` };
-        const [statsRes, salesRes, popularRes] = await Promise.all([
-          api.get('/admin/stats', { headers }),
-          api.get('/admin/sales', { headers }),
-          api.get('/track/popular', { headers })
-        ]);
-        setStats(statsRes.data.data);
-        setSalesData(salesRes.data.data);
-        setPopularProducts(popularRes.data.data);
-      } catch (error) {
-        console.error('Error fetching admin data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
-  }, [getToken]);
+  }, [getToken, salesGroup]);
+
+  const fetchData = async () => {
+    try {
+      const token = await getToken();
+      const headers = { Authorization: `Bearer ${token}` };
+      const [statsRes, salesRes, popularRes] = await Promise.all([
+        api.get('/admin/stats', { headers }),
+        api.get(`/admin/sales?group=${salesGroup}`, { headers }),
+        api.get('/track/popular', { headers })
+      ]);
+      setStats(statsRes.data.data);
+      setSalesData(salesRes.data.data);
+      setPopularProducts(popularRes.data.data);
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExport = async () => {
     try {
@@ -87,7 +89,7 @@ const AdminDashboard = () => {
       {/* Stats Grid - Responsive Columns */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         {[
-          { label: 'Revenue', value: `$${stats?.totalRevenue.toFixed(2)}`, icon: <FaDollarSign />, color: 'from-primary to-accent', shadow: 'shadow-primary/20' },
+          { label: 'Revenue', value: `₹${stats?.totalRevenue.toFixed(2)}`, icon: <FaDollarSign />, color: 'from-primary to-accent', shadow: 'shadow-primary/20' },
           { label: 'Orders', value: stats?.ordersCount, icon: <FaShoppingCart />, color: 'from-dark-2 to-dark-3', shadow: 'shadow-dark-2/20' },
           { label: 'Customers', value: stats?.usersCount, icon: <FaUsers />, color: 'from-blue-600 to-blue-400', shadow: 'shadow-blue-500/20' },
           { label: 'Inventory', value: stats?.productsCount, icon: <FaBox />, color: 'from-gray-800 to-gray-600', shadow: 'shadow-gray-500/20' },
@@ -121,9 +123,14 @@ const AdminDashboard = () => {
               </div>
               <h3 className="text-lg font-black uppercase tracking-widest italic">Revenue Stream</h3>
             </div>
-            <select className="w-full sm:w-auto bg-gray-50 border-none rounded-xl text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 outline-none focus:ring-1 focus:ring-primary cursor-pointer">
-              <option>Last 30 Days</option>
-              <option>Year to Date</option>
+            <select 
+              className="w-full sm:w-auto bg-gray-50 border-none rounded-xl text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+              value={salesGroup}
+              onChange={(e) => setSalesGroup(e.target.value)}
+            >
+              <option value="day">Daily</option>
+              <option value="week">Weekly</option>
+              <option value="month">Monthly</option>
             </select>
           </div>
           <div className="flex-1 w-full min-h-0">
@@ -162,14 +169,14 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* NEW: Analytics Tables - Popular Products & Inventory Alerts */}
+      {/* NEW: Analytics Tables - Popular Products & Top Selling Products */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         
         {/* Most Viewed / Popular Section */}
         <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-gray-50 shadow-sm space-y-8">
            <div className="flex items-center space-x-4 text-primary">
-              <FaTrophy />
-              <h3 className="text-lg font-black uppercase tracking-widest italic">User Interests</h3>
+              <FaEye />
+              <h3 className="text-lg font-black uppercase tracking-widest italic">Live Interests</h3>
            </div>
            <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -207,7 +214,43 @@ const AdminDashboard = () => {
            </div>
         </div>
 
-        {/* Low Stock Alerts */}
+        {/* Top Selling Products */}
+        <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-gray-50 shadow-sm space-y-8">
+           <div className="flex items-center space-x-4 text-primary">
+              <FaFire />
+              <h3 className="text-lg font-black uppercase tracking-widest italic">Top Sellers</h3>
+           </div>
+           <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-50">
+                    <th className="pb-4 text-[9px] uppercase tracking-widest font-black text-gray-400">Product</th>
+                    <th className="pb-4 text-[9px] uppercase tracking-widest font-black text-gray-400 text-center">Sold</th>
+                    <th className="pb-4 text-[9px] uppercase tracking-widest font-black text-gray-400 text-right">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {stats?.topProducts?.map((item) => (
+                    <tr key={item._id} className="group hover:bg-gray-50 transition-colors">
+                      <td className="py-4">
+                        <p className="font-bold text-xs text-dark-1 uppercase tracking-tight">{item.product.name}</p>
+                      </td>
+                      <td className="py-4 text-center">
+                        <span className="text-xs font-black text-dark-2">{item.totalSold}</span>
+                      </td>
+                      <td className="py-4 text-right">
+                        <span className="text-xs font-black text-primary">₹{item.totalRevenue.toFixed(2)}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+           </div>
+        </div>
+      </div>
+
+      {/* Low Stock Alerts */}
+      <div className="mt-10">
         <LowStockTable />
       </div>
 

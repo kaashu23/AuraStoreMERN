@@ -228,7 +228,7 @@ const AdminProducts = () => {
                     </div>
                   </td>
                   <td className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.category?.name || 'Uncategorized'}</td>
-                  <td className="p-4 font-black text-sm text-primary">${p.price.toFixed(2)}</td>
+                  <td className="p-4 font-black text-sm text-primary">₹{p.price.toFixed(2)}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
                       p.stock > 10 ? 'text-green-600' : 'text-red-500'

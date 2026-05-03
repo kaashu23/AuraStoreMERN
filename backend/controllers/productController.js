@@ -14,9 +14,23 @@ exports.getProducts = async (req, res, next) => {
     const excludeFields = ['select', 'sort', 'page', 'limit', 'search'];
     excludeFields.forEach(el => delete queryObj[el]);
 
-    // Handle price range if it exists
+    // Properly transform bracketed query params (e.g., price[lte]=100)
+    // into Mongoose-friendly nested objects (e.g., { price: { $lte: 100 } })
+    Object.keys(queryObj).forEach(key => {
+      if (key.includes('[') && key.includes(']')) {
+        const [field, op] = key.split(/[\[\]]/).filter(Boolean);
+        if (!queryObj[field]) queryObj[field] = {};
+        // Add $ prefix only if missing
+        const operator = op.startsWith('$') ? op : `$${op}`;
+        queryObj[field][operator] = queryObj[key];
+        delete queryObj[key];
+      }
+    });
+
+    // Handle traditional JSON-style filters by adding $ prefix to operators
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    // Only prefix if it's NOT already prefixed (avoiding $$lte)
+    queryStr = queryStr.replace(/"(gt|gte|lt|lte|in)":/g, '"$$$1":');
     
     let parsedQuery = JSON.parse(queryStr);
     
@@ -24,47 +38,42 @@ exports.getProducts = async (req, res, next) => {
     if (parsedQuery.category === '') delete parsedQuery.category;
 
     // Build the query
-    let query = Product.find(parsedQuery);
+    let mongoQuery = Product.find(parsedQuery);
 
     // Search functionality (Text index search)
     if (req.query.search) {
-      query = Product.find({ 
-        $text: { $search: req.query.search } 
-      });
-      
-      // If other filters exist, merge them
-      if (Object.keys(parsedQuery).length > 0) {
-        query = Product.find({
-           ...parsedQuery,
-           $text: { $search: req.query.search }
-        });
-      }
+      const searchFilter = { $text: { $search: req.query.search } };
+      mongoQuery = Product.find({ ...parsedQuery, ...searchFilter });
     }
 
     // Select Fields
     if (req.query.select) {
       const fields = req.query.select.split(',').join(' ');
-      query = query.select(fields);
+      mongoQuery = mongoQuery.select(fields);
     }
 
     // Sort
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
+      mongoQuery = mongoQuery.sort(sortBy);
     } else {
-      query = query.sort('-createdAt');
+      mongoQuery = mongoQuery.sort('-createdAt');
     }
 
     // Pagination
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20; // Default limit for high performance
+    const limit = parseInt(req.query.limit, 10) || 20;
     const skip = (page - 1) * limit;
 
-    query = query.skip(skip).limit(limit);
+    mongoQuery = mongoQuery.skip(skip).limit(limit);
 
     // Executing query
-    const products = await query.populate('category', 'name');
-    const total = await Product.countDocuments(req.query.search ? { $text: { $search: req.query.search }, ...parsedQuery } : parsedQuery);
+    const products = await mongoQuery.populate('category', 'name');
+    
+    const countFilter = req.query.search 
+      ? { ...parsedQuery, $text: { $search: req.query.search } } 
+      : parsedQuery;
+    const total = await Product.countDocuments(countFilter);
 
     res.status(200).json({
       success: true,
